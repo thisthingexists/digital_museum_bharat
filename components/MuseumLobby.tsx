@@ -6,21 +6,30 @@ import { galleries } from "@/data/galleries";
 
 export default function MuseumLobby() {
   return (
-    <section
+    <motion.section
       id="lobby"
       aria-label="Museum lobby"
-      className="relative mx-auto w-full max-w-6xl px-6 py-24"
+      className="relative mx-auto w-full max-w-6xl px-6 pt-10 pb-24"
+      initial={{ opacity: 0, y: 48 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-120px" }}
+      transition={{ duration: 0.7, ease: "easeOut" }}
     >
-      {/* Heading */}
+      {/* Continuity glow so the gate hands directly to the lobby — no black gap */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-[radial-gradient(ellipse_at_top,rgba(251,191,36,0.12)_0%,transparent_70%)]"
+      />
+      {/* Heading — gate already said Welcome, so lobby moves the story forward */}
       <p className="text-center text-sm tracking-[0.3em] text-amber-400/80 uppercase">
         Museum Lobby
       </p>
       <h2 className="mt-3 text-center text-4xl font-bold text-amber-50 sm:text-5xl">
-        Welcome to India
+        Where Will You Go First?
       </h2>
       <p className="mx-auto mt-4 max-w-2xl text-center text-lg text-stone-300">
-        A civilization told through thousands of stories. Choose a gallery door
-        to begin.
+        Six galleries, thousands of years. Step through any door to begin
+        exploring.
       </p>
 
       {/* Gallery doors */}
@@ -76,6 +85,6 @@ export default function MuseumLobby() {
       <p className="mt-10 text-center text-sm text-stone-500">
         Tip: Civilization, Art and Dance open first in M4–M5. Others unlock next.
       </p>
-    </section>
+    </motion.section>
   );
 }

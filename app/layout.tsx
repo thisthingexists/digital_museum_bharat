@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Enter India — Digital Museum of Indian Culture",
+  title: "Digital Museum of India",
   description: "SIH PS26197: immersive digital museum of Indian culture and heritage",
 };
 

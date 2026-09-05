@@ -61,37 +61,21 @@ export default function MuseumGate() {
   const beamWidth = useTransform(scrollYProgress, [0.2, 0.7], ["4px", "60vw"]);
   // Camera push-in feel
   const scale = useTransform(scrollYProgress, [0, 1], [1, 1.12]);
-  // Hint fades fast, inner text fades in late
+  // Front decor fades fast so it never reappears midway
   const hintOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
-  const innerOpacity = useTransform(scrollYProgress, [0.45, 0.75], [0, 1]);
-
-  const scrollToLobby = () => {
-    document.getElementById("lobby")?.scrollIntoView({ behavior: "smooth" });
-  };
+  // Welcome fades IN behind opening doors, holds, then dissolves
+  // as the lobby fades in below — a crossfade handoff, no black gap.
+  const welcomeOpacity = useTransform(
+    scrollYProgress,
+    [0.4, 0.6, 0.78, 0.93],
+    [0, 1, 1, 0]
+  );
 
   return (
-    <section ref={ref} className="relative h-[300vh] bg-[#0c0a09]">
+    <section ref={ref} aria-label="Museum entrance" className="relative h-[220vh] bg-[#0c0a09]">
       <div className="sticky top-0 flex h-screen flex-col overflow-hidden">
-        {/* Top label */}
-        <div className="absolute top-0 z-30 flex w-full items-center justify-center pt-6">
-          <p className="text-xs tracking-[0.4em] text-amber-200/80 uppercase">
-            Digital Museum of Indian Heritage
-          </p>
-        </div>
-
-        {/* Marigold garland - pure CSS dots */}
-        <div aria-hidden="true" className="absolute top-12 z-30 flex w-full justify-center gap-2 px-4">
-          {Array.from({ length: 24 }).map((_, i) => (
-            <div
-              key={i}
-              className={`h-3 w-3 rounded-full ${
-                i % 2 === 0 ? "bg-amber-400" : "bg-orange-600"
-              } shadow-[0_0_10px_rgba(251,146,60,0.8)]`}
-            />
-          ))}
-        </div>
-
-        {/* BEHIND THE DOORS: light + lobby teaser */}
+        {/* BEHIND THE DOORS: light + Welcome. No buttons —
+            scrolling onward is the only way forward, straight into the lobby. */}
         <motion.div style={{ scale }} className="absolute inset-0 flex items-center justify-center">
           {/* Warm glow */}
           <motion.div
@@ -106,23 +90,17 @@ export default function MuseumGate() {
             }}
             className="absolute h-full bg-gradient-to-b from-amber-100/80 via-amber-300/50 to-orange-500/20 blur-xl"
           />
-          {/* Inner text */}
+          {/* Welcome — fades in as doors part, out before lobby */}
           <motion.div
-            style={{ opacity: reduceMotion ? 1 : innerOpacity }}
+            style={{ opacity: reduceMotion ? 1 : welcomeOpacity }}
             className="relative z-10 px-6 text-center"
           >
-            <p className="text-sm tracking-[0.3em] text-amber-200 uppercase">
-              A civilization told through thousands of stories
-            </p>
-            <h2 className="mt-3 text-4xl font-bold text-amber-50 sm:text-6xl">
+            <h2 className="text-4xl font-bold text-amber-50 drop-shadow-[0_2px_24px_rgba(0,0,0,0.9)] sm:text-6xl">
               Welcome to India
             </h2>
-            <button
-              onClick={scrollToLobby}
-              className="mt-8 rounded-full bg-amber-400 px-8 py-3 font-semibold text-black transition hover:bg-amber-300 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
-            >
-              Enter Museum ↓
-            </button>
+            <p className="mx-auto mt-4 max-w-xl text-lg text-amber-100/90">
+              A civilisation told through thousands of stories
+            </p>
           </motion.div>
         </motion.div>
 
@@ -140,18 +118,33 @@ export default function MuseumGate() {
           <DoorPattern side="right" />
         </motion.div>
 
-        {/* Center seam + lock */}
+        {/* FRONT: top label + garland (part of the doors). Single block,
+            text first with clear gap below so they never overlap. */}
         <motion.div
           style={{ opacity: reduceMotion ? 0 : hintOpacity }}
-          className="absolute inset-0 z-30 flex flex-col items-center justify-center"
+          className="pointer-events-none absolute inset-x-0 top-0 z-30"
         >
-          <div className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-amber-300 bg-black/70 text-2xl text-amber-300">
-            ✦
+          <p className="w-full pt-6 text-center text-xs tracking-[0.4em] text-amber-200/80 uppercase">
+            Digital Museum of Indian Heritage
+          </p>
+          <div aria-hidden="true" className="flex w-full justify-center gap-2 px-4 pt-4">
+            {Array.from({ length: 24 }).map((_, i) => (
+              <div
+                key={i}
+                className={`h-3 w-3 rounded-full ${
+                  i % 2 === 0 ? "bg-amber-400" : "bg-orange-600"
+                } shadow-[0_0_10px_rgba(251,146,60,0.8)]`}
+              />
+            ))}
           </div>
-          <h1 className="mt-6 px-6 text-center text-5xl font-bold text-amber-50 drop-shadow-[0_2px_20px_rgba(0,0,0,0.9)] sm:text-7xl">
-            Enter India
-          </h1>
-          <p className="mt-3 animate-bounce text-sm tracking-widest text-amber-200 uppercase">
+        </motion.div>
+
+        {/* Bottom-center scroll hint — separated so it never sits in the middle */}
+        <motion.div
+          style={{ opacity: reduceMotion ? 0 : hintOpacity }}
+          className="pointer-events-none absolute inset-x-0 bottom-8 z-30 flex justify-center"
+        >
+          <p className="animate-bounce rounded-full border border-amber-200/30 bg-black/60 px-5 py-2 text-sm tracking-widest text-amber-200 uppercase">
             Scroll to open ↓
           </p>
         </motion.div>

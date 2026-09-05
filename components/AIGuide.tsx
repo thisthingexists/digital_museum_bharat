@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 
 type Msg = { role: "user" | "guide"; text: string; cites?: { label: string; href: string }[] };
@@ -8,13 +8,36 @@ type Msg = { role: "user" | "guide"; text: string; cites?: { label: string; href
 const QUICK = ["What is Warli art?", "Tell me about Kerala", "Mughal period?", "What is Sattriya?"];
 
 // Floating guide. Talks to /api/guide (retrieval-only, no hallucination).
+// Hidden during the gate cinematic — appears once the lobby is reached.
 export default function AIGuide() {
   const [open, setOpen] = useState(false);
+  const [pastGate, setPastGate] = useState(false);
   const [input, setInput] = useState("");
   const [msgs, setMsgs] = useState<Msg[]>([
     { role: "guide", text: "Namaste! 🙏 Ask me about any artifact, state or period — I answer only from our museum database." },
   ]);
   const [loading, setLoading] = useState(false);
+
+  // Show only from the lobby onwards so the gate stays cinematic.
+  useEffect(() => {
+    const onScroll = () => {
+      const lobby = document.getElementById("lobby");
+      if (!lobby) {
+        // Non-home pages (artifact/gallery/state) have no gate — always show.
+        setPastGate(true);
+        return;
+      }
+      const rect = lobby.getBoundingClientRect();
+      setPastGate(rect.top <= window.innerHeight * 0.85);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    if (!pastGate) setOpen(false);
+  }, [pastGate]);
 
   const ask = async (q: string) => {
     const query = q.trim();
@@ -38,13 +61,15 @@ export default function AIGuide() {
 
   return (
     <>
-      <button
-        onClick={() => setOpen((o) => !o)}
-        aria-label={open ? "Close museum guide" : "Open museum guide"}
-        className="fixed right-5 bottom-5 z-50 rounded-full bg-amber-400 px-5 py-3 font-semibold text-black shadow-xl hover:bg-amber-300"
-      >
-        {open ? "✕ Guide" : "🧭 AI Guide"}
-      </button>
+      {pastGate && (
+        <button
+          onClick={() => setOpen((o) => !o)}
+          aria-label={open ? "Close museum guide" : "Open museum guide"}
+          className="fixed right-5 bottom-5 z-50 rounded-full bg-amber-400 px-5 py-3 font-semibold text-black shadow-xl hover:bg-amber-300"
+        >
+          {open ? "✕ Guide" : "🧭 AI Guide"}
+        </button>
+      )}
 
       {open && (
         <div className="fixed right-5 bottom-20 z-50 flex h-[480px] w-[330px] flex-col overflow-hidden rounded-2xl border border-amber-200/30 bg-[#1c1410] shadow-2xl">
